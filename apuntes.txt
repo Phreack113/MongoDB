@@ -1,0 +1,68 @@
+Los datos en mongodb se separan en COLECCIONES.
+
+Podemos por ejemplo tener una colección de 'usuarios', 'productos', 'categorías', 'vendedores', etc.
+
+Las COLECCIONES son el equivalente a las tablas en bases de datos SQL.
+
+Dentro de las COLECCIONES mongodb guarda DOCUMENTOS
+
+Los documentos son Objetos JSON porejemplo
+
+{
+    nombre: 'Sebastian',
+    apellido: 'Talamona',
+    creación: 03-05-2017,
+    especialidad: 'Ingeniero'
+}
+
+Inicio el servidor:
+* Abro una consola CMD como administrador y ejecuto el comando mongod
+
+* Luego abro otra consola CMD como administrador y ejecuto el comando mongo, desde ahi vamos a hacer algunas pruebas.
+
+COMANDOS
+db: Te indica que que base de datos nos encontramos actualmente (por defectos es TEST)
+show dbs: Nos da un listado de las BD creadas (Por defecto son admin, config y local)
+help: Ayuda
+use [nombre]: Con el comando use, seguido de un nombre a elección, se CREA una base de datos
+db.dropDatabase() : ELIMINA la base de datos actual
+db.users.drop() : ELIMINA la colleción users
+
+CREAR
+db.praducts.insert({'nombre':'laptop'}) : Este comando CREA una colección lamada PRODUCTS e inserta un documento (objeto json).
+show collections: me muestra las COLECCIONES dentro de la DB actual
+db.createCollection("users") : Crea una colección llamada users
+
+LISTAR
+db.products.find() : Me devuelve todos los DOCUMENTOS dentro de la COLLECCION products
+db.product.find().pretty() : el comando pretty muestra el objeto JSON en multiples lineas
+db.products.find({'name':'mouse'}) : Me devuelve los productos cuyo nombre sea 'mouse'
+db.products.find({'name':'mouse', 'tag':'optical'}) : Me devuelve los productos cuyo nombre sea 'mouse' y el 'tag' sea 'optical'
+db.products.findOne({'name':'mouse', 'tag':'optical'}) : Solo devuelve la primeara coincidencia
+db.products.find({'name':'mouse'}, {'name':1, '_ID': 0}) : Con este segundo objeto como argumento puedo especificar los atributos que quiero que me traiga en la respuesta marcandolos con un 1, y puedo marcar con un 0 el atributo _ID que siempre viene por defecto para que no venga.
+db.products.find({'name':'mouse'}).sort({'name':1}) : trae los resultados ordenando alfabeticamente por el atributo nombre
+db.products.find().limit(5) : Trae los 5 primeros datos
+db.products.count() : Devuelve la cantidad de documentos
+
+db.products.find().forEach(product => print('el nombre de producto es: ' + product.name)) : Este forEach recorre la COLLECCION y entrega el resulado de la función flecha, en este caso imprime
+
+MODIFICACIÓN 
+- DE DOCUMENTO ENTERO (osea que si solo le envío una variable de reemplazo va a dejar esa sola, para solo modificar hay que usar $set)
+db.products.update({},{}) : Se usa para actualizar o modificar un documento, el primer obejeto es el de busqueda y el segundo lo que quiero reemplazar
+Ejemplo:  db.products.update({'name':'laptop'},{'price':'99.99'}) OJO! REEMPLAZA TODO EL DOCUMENTO ENTERO
+
+- DE UN UNICO ATRIBUTO
+db.products.update({'name':'laptop'},{$set:{'description':'laptop i7 con w11'}}) lo encuentra y le agrega el atributo descripción
+
+- UPSERT : Si no lo encuentra lo crea
+db.products.update({'name':'desktop'},{$set:{'description':'laptop i7 con w11'}}, {upsert: true}) : El tercer objeto seteado en upsert true indica que si luego de la busqueda no hay ningun match, que cree el objeto
+
+- Incremento valores numericos con $inc
+db.products.update({'name':'laptop'},{$inc{'price':'0.01'}}) : incrementa precio en un centavo
+
+- Renombrar nombre de atrinutos con $rename
+db.products.update({'name':'laptop'},{$rename{'name':'nombre'}}) : renombra name por nombre
+
+ELIMINAR
+db.products.remove({'name':'laptop'}) : elimina el docuemnto
+db.products.remove({}) : Si entrego un JSON vacío entonces elimina todos los documentos que tiene adentro
